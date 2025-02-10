@@ -1,29 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Get the score from local storage
-    chrome.storage.local.get("credibilityScore", function (data) {
-        let scoreElement = document.getElementById("score");
-        let messageElement = document.getElementById("message");
-
-        if (data.credibilityScore !== undefined) {
-            let score = data.credibilityScore;
-
-            // Display the score
-            scoreElement.textContent = `Credibility Score: ${score}`;
-
-            // Set message based on score range
-            if (score >= 71) {
-                messageElement.textContent = "✅ This website is reliable.";
-                messageElement.style.color = "green";
-            } else if (score >= 35) {
-                messageElement.textContent = "⚠️ This website is unchecked/unreliable.";
-                messageElement.style.color = "orange";
+    chrome.runtime.onMessage.addListener(function (message) {
+        if (message.action === "displayScore") {
+            let scoreElement = document.getElementById("score");
+            if (message.score !== null) {
+                scoreElement.textContent = `Credibility Score: ${message.score}/100`;
+                scoreElement.style.color = getScoreColor(message.score);
             } else {
-                messageElement.textContent = "❌ This website may contain fake news!";
-                messageElement.style.color = "red";
+                scoreElement.textContent = "No data available";
+                scoreElement.style.color = "gray";
             }
-        } else {
-            scoreElement.textContent = "No data available.";
-            messageElement.textContent = "";
         }
     });
+
+    function getScoreColor(score) {
+        if (score >= 71) return "green";       // Real news
+        if (score >= 35) return "orange";      // Unchecked/Unreliable
+        return "red";                          // Fake news
+    }
 });

@@ -1,20 +1,25 @@
-import pickle
-import os
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
 import joblib
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+import os
 
-class FakeNewsModel:
-    def __init__(self):
-        # Load the trained model & vectorizer
-        model_path = os.path.join(os.path.dirname(__file__), "fake_news_model.pkl")
-        vectorizer_path = os.path.join(os.path.dirname(__file__), "vectorizer.pkl")
+Base = declarative_base()
 
-        self.vectorizer = joblib.load(vectorizer_path)
-        self.model = joblib.load(model_path)
+# NewsArticle Model for Database Storage
+class NewsArticle(Base):
+    __tablename__ = "news_articles"
 
-    def predict(self, text):
-        """Predicts if the news is Fake or Real"""
-        text_transformed = self.vectorizer.transform([text])
-        prediction = self.model.predict(text_transformed)
-        return "Real" if prediction[0] == 1 else "Fake"
+    id = Column(Integer, primary_key=True, index=True)
+    url = Column(String, unique=True, nullable=False)
+    content = Column(String, nullable=False)
+    credibility_score = Column(Float, nullable=False)
+    credibility_status = Column(String, nullable=False)
+
+# Load Pre-trained Fake News Detection Model
+MODEL_PATH = "backend/fake_news_model.pkl"
+
+if os.path.exists(MODEL_PATH):
+    fake_news_model = joblib.load(MODEL_PATH)
+else:
+    fake_news_model = None
+    print("⚠️ Fake News Model not found! Train and save the model first.")

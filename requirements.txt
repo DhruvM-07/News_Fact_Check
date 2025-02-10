@@ -1,10 +1,12 @@
 fastapi
 uvicorn
+pydantic
+requests
+beautifulsoup4
+scikit-learn
 pandas
 numpy
-scikit-learn
-joblib
-textblob
-beautifulsoup4
-requests
 sqlalchemy
+joblib
+tqdm
+httpx
